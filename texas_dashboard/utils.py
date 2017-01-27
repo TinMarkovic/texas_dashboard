@@ -23,12 +23,12 @@ def get_grouped_modules_for_user(user):
 
 
 def hide_notification_for_user(notification, user):
-    status = DashboardUserNotificationStatus.objects.get_or_create(notification=notification, user=user)
+    status, created = DashboardUserNotificationStatus.objects.get_or_create(notification=notification, user=user)
     status.show = False
     status.save(update_fields=['show'])
 
 
 def put_module_in_progress_for_user(module, user):
-    module = LOModuleUserStatus.objects.get_or_create(notification=module, user=user)
+    module, created = LOModuleUserStatus.objects.get_or_create(notification=module, user=user)
     module.in_progress = True
     module.save(update_fields=['in_progress'])
