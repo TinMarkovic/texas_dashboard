@@ -3,8 +3,7 @@ Models to support Texas OnCourse dashboard features
 """
 
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
 from student.models import User
 from model_utils.models import TimeStampedModel
@@ -20,6 +19,20 @@ class DashboardNotification(TimeStampedModel):
 
     def __unicode__(self):
         return self.name
+
+    @classmethod
+    def get(cls, name):
+        """
+        Helper class method to look up a Dashboard Notification,
+        raises ObjectDoesNotExist if the name is invalid.
+        """
+
+        exists = DashboardNotification.objects.filter(name=name).exists()
+        if exists:
+            notification = DashboardNotification.objects.get(name=name)
+        else:
+            raise ObjectDoesNotExist()
+        return notification
 
 
 class DashboardUserNotificationStatus(TimeStampedModel):
@@ -41,9 +54,24 @@ class LOModule(models.Model):
     module_image_small = models.ImageField(null=True, blank=True)
     module_image_large = models.ImageField(null=True, blank=True)
     url = models.TextField()
+    active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
+
+    @classmethod
+    def get(cls, name):
+        """
+        Helper class method to look up a Dashboard Notification,
+        raises ObjectDoesNotExist if the name is invalid.
+        """
+
+        exists = LOModule.objects.filter(name=name).exists()
+        if exists:
+            module = LOModule.objects.get(name=name)
+        else:
+            raise ObjectDoesNotExist()
+        return module
 
 
 class LOModuleUserStatus(models.Model):
