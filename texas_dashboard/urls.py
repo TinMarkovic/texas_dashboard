@@ -4,7 +4,6 @@ URL mappings for the Texas OnCourse features
 
 from django.conf.urls import patterns, url
 
-
 urlpatterns = patterns(
     'texas_dashboard.views',
 
