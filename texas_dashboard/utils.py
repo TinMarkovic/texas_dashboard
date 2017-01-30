@@ -29,6 +29,6 @@ def hide_notification_for_user(notification, user):
 
 
 def put_module_in_progress_for_user(module, user):
-    module, created = LOModuleUserStatus.objects.get_or_create(notification=module, user=user)
+    module, created = LOModuleUserStatus.objects.get_or_create(module=module, user=user)
     module.in_progress = True
     module.save(update_fields=['in_progress'])

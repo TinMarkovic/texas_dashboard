@@ -5,8 +5,8 @@ API endpoints
 =============
 
 """
-    DELETE /txoc/notifications/(?P<notification_name>[^/]+)/
-    PUT /txoc/lomodules/(?P<module_name>[^/]+)/
+    DELETE /txoc/notifications/(?P<notification_id>[0-9]+)/
+    PUT /txoc/lomodules/(?P<module_id>[0-9]+)/
 """
 
 Util methods
