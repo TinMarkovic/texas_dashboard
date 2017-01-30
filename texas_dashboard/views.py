@@ -5,23 +5,21 @@ View endpoints for Survey
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseNotFound
 from django.core.exceptions import ObjectDoesNotExist
-from urllib import unquote
 
 from texas_dashboard.models import DashboardNotification, LOModule
 from texas_dashboard.utils import hide_notification_for_user, put_module_in_progress_for_user
 
 
 @login_required
-def manage_notifications(request, notification_name):
+def manage_notifications(request, notification_id):
     """
     Notification management endpoint.
 
     Currently only removing notifications is allowed (and it only hides them from user)
     """
-    notification_name = unquote(notification_name)
 
     try:
-        notification = DashboardNotification.get(notification_name)
+        notification = DashboardNotification.get(notification_id)
     except ObjectDoesNotExist:
         return HttpResponseNotFound()
 
@@ -34,16 +32,15 @@ def manage_notifications(request, notification_name):
 
 
 @login_required
-def manage_modules(request, module_name):
+def manage_modules(request, module_id):
     """
     LOModule management endpoint.
 
     Currently only removing notifications is allowed (and it only hides them from user)
     """
-    module_name = unquote(module_name)
 
     try:
-        module = LOModule.get(module_name)
+        module = LOModule.get(module_id)
     except ObjectDoesNotExist:
         return HttpResponseNotFound()
 
