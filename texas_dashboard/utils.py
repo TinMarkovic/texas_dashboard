@@ -4,8 +4,8 @@ from texas_dashboard.models import DashboardNotification, DashboardUserNotificat
 def get_notifications_list_for_user(user):
     active_notifications = DashboardNotification.objects.filter(active=True)
     user_notifications = DashboardUserNotificationStatus.objects.filter(user=user)
-    hidden_user_notifications = user_notifications.filter(show=False)
-    read_user_notifications = user_notifications.filter(seen=True)
+    hidden_user_notifications = user_notifications.filter(show=False).order_by('-notification_id')
+    read_user_notifications = user_notifications.filter(seen=True).order_by('-notification_id')
 
     hidden_notifications = [o.notification for o in hidden_user_notifications]
     read_notifications = [o.notification for o in read_user_notifications]
