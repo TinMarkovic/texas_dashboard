@@ -10,11 +10,16 @@ def get_notifications_list_for_user(user):
     hidden_notifications = [o.notification for o in hidden_user_notifications]
     read_notifications = [o.notification for o in read_user_notifications]
 
-    displayed_notifications = [notification for notification in active_notifications
-                               if notification not in hidden_notifications]
-    new_notifications = [notification for notification in active_notifications
-                         if notification not in read_notifications]
-
+    displayed_notifications = []
+    new_notifications = []
+    for notification in active_notifications:
+        if notification in hidden_notifications:
+            pass
+        elif notification in read_notifications:
+            displayed_notifications += notification
+        else:
+            new_notifications += notification
+    
     return new_notifications, displayed_notifications
 
 
