@@ -5,7 +5,7 @@ def get_notifications_list_for_user(user):
     active_notifications = DashboardNotification.objects.filter(active=True)
     user_notifications = DashboardUserNotificationStatus.objects.filter(user=user)
     hidden_user_notifications = user_notifications.filter(show=False)
-    read_user_notifications = user_notifications.filter(read=True)
+    read_user_notifications = user_notifications.filter(seen=True)
 
     hidden_notifications = [o.notification for o in hidden_user_notifications]
     read_notifications = [o.notification for o in read_user_notifications]
@@ -30,15 +30,15 @@ def get_grouped_modules_for_user(user):
 
 def hide_notification_for_user(notification, user):
     status, created = DashboardUserNotificationStatus.objects.get_or_create(notification=notification, user=user)
-    status.read = True
+    status.seen = True
     status.show = False
     status.save(update_fields=['show'])
 
 
 def read_notification_for_user(notification, user):
     status, created = DashboardUserNotificationStatus.objects.get_or_create(notification=notification, user=user)
-    status.read = True
-    status.save(update_fields=['read'])
+    status.seen = True
+    status.save(update_fields=['seen'])
 
 
 def put_module_in_progress_for_user(module, user):

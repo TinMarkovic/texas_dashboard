@@ -42,7 +42,7 @@ class DashboardUserNotificationStatus(TimeStampedModel):
     user = models.ForeignKey(User, db_index=True)
     notification = models.ForeignKey(DashboardNotification, db_index=True)
     show = models.BooleanField(default=True)
-    read = models.BooleanField(default=False)
+    seen = models.BooleanField(default=False)
 
 
 class LOModule(models.Model):
