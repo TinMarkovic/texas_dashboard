@@ -16,10 +16,10 @@ def get_notifications_list_for_user(user):
         if notification in hidden_notifications:
             pass
         elif notification in read_notifications:
-            displayed_notifications += notification
+            displayed_notifications.append(notification)
         else:
-            new_notifications += notification
-    
+            new_notifications.append(notification)
+
     return new_notifications, displayed_notifications
 
 
