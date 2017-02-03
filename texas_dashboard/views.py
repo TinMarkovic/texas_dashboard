@@ -6,10 +6,12 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseNotFound
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.csrf import csrf_exempt
 
 from texas_dashboard.models import DashboardNotification, LOModule
 from texas_dashboard.utils import (
-    hide_notification_for_user, put_module_in_progress_for_user, read_notification_for_user
+    hide_notification_for_user, put_module_in_progress_for_user, read_notification_for_user,
+    delete_all_sessions_by_user
 )
 
 
@@ -77,5 +79,21 @@ def manage_modules(request, module_id):
         put_module_in_progress_for_user(module, request.user)
     else:
         return HttpResponseServerError("Not Implemented")
+
+    return HttpResponse()  # 200 for OK :)
+
+
+@csrf_exempt
+def logout_user(request):
+    """
+    Logout user across all sessions.
+    """
+
+    json_data = json.loads(request.body)
+    try:
+        user_id = int(json_data["user_id"])
+    except KeyError:
+        return HttpResponseServerError("Malformed data!")
+    delete_all_sessions_by_user(user_id)
 
     return HttpResponse()  # 200 for OK :)

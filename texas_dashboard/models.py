@@ -4,6 +4,7 @@ Models to support Texas OnCourse dashboard features
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.sessions.backends.db import SessionStore
 
 from student.models import User
 from model_utils.models import TimeStampedModel
@@ -82,3 +83,11 @@ class LOModuleUserStatus(models.Model):
     user = models.ForeignKey(User, db_index=True)
     module = models.ForeignKey(LOModule, db_index=True)
     in_progress = models.BooleanField(default=False)
+
+
+class UserSession(models.Model):
+    """
+    Connection connecting user to his session, for the process of retrieving all their sessions.
+    """
+    user = models.ForeignKey(User, db_index=True)
+    session = models.CharField(max_length=255)

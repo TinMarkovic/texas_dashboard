@@ -1,4 +1,12 @@
-from texas_dashboard.models import DashboardNotification, DashboardUserNotificationStatus, LOModuleUserStatus, LOModule
+from texas_dashboard.models import (
+    DashboardNotification, DashboardUserNotificationStatus, LOModuleUserStatus, LOModule, UserSession
+)
+from importlib import import_module
+from django.conf import settings
+from django.contrib.sessions.models import Session
+from django.db import connection
+
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 def get_notifications_list_for_user(user):
@@ -50,3 +58,25 @@ def put_module_in_progress_for_user(module, user):
     module, created = LOModuleUserStatus.objects.get_or_create(module=module, user=user)
     module.in_progress = True
     module.save(update_fields=['in_progress'])
+
+
+def delete_all_sessions_by_user(user):
+    user_session_links = UserSession.objects.filter(user_id=user)
+    #user_sessions = [SessionStore(o.session) for o in user_session_links]
+    #user_sessions = [Session.objects.get(session_key=o.session) for o in user_session_links]
+    user_sessions = [o.session for o in user_session_links]
+    print "Inside function..."
+    print user_sessions
+    for session in user_sessions:
+        print "Deleting:"
+        print session
+        try:
+            # session.delete()
+            with connection.cursor() as cursor:
+                cursor.execute("DELETE FROM edxapp.django_session WHERE session_key=%s;", [session])
+        except Exception as ex:
+            print ex
+
+
+def create_session_user_link(session_key, user_id):
+    UserSession.objects.get_or_create(session=session_key, user_id=user_id)
