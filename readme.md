@@ -6,23 +6,48 @@ Installation
 
 On the machine, as the `edxapp` user, run:
 
-`pip install *git+url*`
+`pip install git+https://github.com/TinMarkovic/texas_dashboard.git`
 
 After that, you have to configure two files from the edx-platform repo: 
 
-- common.py (adding to installed_apps)
-- urls.py (adding a valid path to the app)
+- lms/envs/common.py (adding to installed_apps)
+- lms/urls.py (adding a valid path to the app)
 
-Then, run migrations.
+```
+# Edit in common.py
 
-TODO: Improve readme :)
+INSTALLED_APPS = (
+	...
 
+    # Custom Texas OnCourse dashboard backend
+    'texas_dashboard',
+    )
+
+MIDDLEWARE_CLASSES = (
+    ...
+
+    # Custom Texas OnCourse middleware
+    'texas_dashboard.middleware.SessionLinkingMiddleware',
+    )
+
+# Edit in urls.py
+
+urlpatterns = (
+	...
+
+    # URLs for custom Texas OnCourse dashboard
+    url(r'^txoc/', include('texas_dashboard.urls', namespace='txoc')),
+    )
+```
+
+Then, run Django migrations.
 
 
 API endpoints
 =============
 
 ``` 
+	POST /txoc/logout #  Takes JSON with "user_id" field and logs out user
     PUT /txoc/notifications/list/  # Takes list of notifications and marks as read
     PUT /txoc/notifications/(?P<notification_id>[0-9]+)/  # Marks as read
     DELETE /txoc/notifications/(?P<notification_id>[0-9]+)/  # Deletes for user

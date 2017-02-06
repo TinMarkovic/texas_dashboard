@@ -6,7 +6,5 @@ class SessionLinkingMiddleware(object):
         if request.user.id and request.session.session_key:
             user_id = int(request.user.id)
             session_key = request.session.session_key
-            print "Tootles: "
-            print user_id
             create_session_user_link(session_key, user_id)
 

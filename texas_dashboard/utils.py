@@ -62,20 +62,9 @@ def put_module_in_progress_for_user(module, user):
 
 def delete_all_sessions_by_user(user):
     user_session_links = UserSession.objects.filter(user_id=user)
-    #user_sessions = [SessionStore(o.session) for o in user_session_links]
-    #user_sessions = [Session.objects.get(session_key=o.session) for o in user_session_links]
-    user_sessions = [o.session for o in user_session_links]
-    print "Inside function..."
-    print user_sessions
+    user_sessions = [SessionStore(o.session) for o in user_session_links]
     for session in user_sessions:
-        print "Deleting:"
-        print session
-        try:
-            # session.delete()
-            with connection.cursor() as cursor:
-                cursor.execute("DELETE FROM edxapp.django_session WHERE session_key=%s;", [session])
-        except Exception as ex:
-            print ex
+        session.delete()
 
 
 def create_session_user_link(session_key, user_id):

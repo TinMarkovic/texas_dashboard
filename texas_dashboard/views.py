@@ -2,6 +2,7 @@
 View endpoints for Survey
 """
 import json
+import logging
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseNotFound
@@ -13,6 +14,8 @@ from texas_dashboard.utils import (
     hide_notification_for_user, put_module_in_progress_for_user, read_notification_for_user,
     delete_all_sessions_by_user
 )
+
+log = logging.getLogger("txoc.dashboard")
 
 
 @login_required
@@ -91,6 +94,7 @@ def logout_user(request):
 
     json_data = json.loads(request.body)
     try:
+        log.warning(str(request.body))
         user_id = int(json_data["user_id"])
     except KeyError:
         return HttpResponseServerError("Malformed data!")
