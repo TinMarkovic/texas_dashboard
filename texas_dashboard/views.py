@@ -3,6 +3,7 @@ View endpoints for Survey
 """
 import json
 import logging
+import base64
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseNotFound
@@ -14,8 +15,6 @@ from texas_dashboard.utils import (
     hide_notification_for_user, put_module_in_progress_for_user, read_notification_for_user,
     delete_all_sessions_by_user
 )
-
-log = logging.getLogger("txoc.dashboard")
 
 
 @login_required
@@ -92,12 +91,28 @@ def logout_user(request):
     Logout user across all sessions.
     """
 
-    json_data = json.loads(request.body)
+    token = str(request.body).split("=")[1]
+    base64_content = token.split(".")[1]
+    print base64_content
+
+    # Python's decode base64 is somewhat too sensitive
+    missing_padding = len(base64_content) % 4
+    if missing_padding != 0:
+        base64_content += b'='* (4 - missing_padding)
+    content = base64.b64decode(base64_content)
+
+    json_data = json.loads(content)
+
     try:
-        log.warning(str(request.body))
-        user_id = int(json_data["user_id"])
+        logging.error("Analytic output for the logout call:")
+        logging.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        logging.error(request.body)
+        logging.error(content)
+        print str(request.body)
+        print content
+        # user_id = int(json_data["user_id"])
     except KeyError:
         return HttpResponseServerError("Malformed data!")
-    delete_all_sessions_by_user(user_id)
+    # delete_all_sessions_by_user(user_id)
 
     return HttpResponse()  # 200 for OK :)

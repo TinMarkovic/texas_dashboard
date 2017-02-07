@@ -4,10 +4,11 @@ from texas_dashboard.models import (
 from importlib import import_module
 from django.conf import settings
 from django.contrib.sessions.models import Session
+from django.contrib.auth import get_user_model
 from django.db import connection
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
-
+User = get_user_model()
 
 def get_notifications_list_for_user(user):
     active_notifications = DashboardNotification.objects.filter(active=True)
@@ -69,3 +70,6 @@ def delete_all_sessions_by_user(user):
 
 def create_session_user_link(session_key, user_id):
     UserSession.objects.get_or_create(session=session_key, user_id=user_id)
+
+def get_userid_by_email(user_email):
+    User.objects.get(email=user_email)
