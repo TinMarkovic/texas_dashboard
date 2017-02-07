@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from texas_dashboard.models import DashboardNotification, LOModule
 from texas_dashboard.utils import (
     hide_notification_for_user, put_module_in_progress_for_user, read_notification_for_user,
-    delete_all_sessions_by_user
+    delete_all_sessions_by_user, get_userid_by_email
 )
 
 
@@ -93,7 +93,6 @@ def logout_user(request):
 
     token = str(request.body).split("=")[1]
     base64_content = token.split(".")[1]
-    print base64_content
 
     # Python's decode base64 is somewhat too sensitive
     missing_padding = len(base64_content) % 4
@@ -104,15 +103,13 @@ def logout_user(request):
     json_data = json.loads(content)
 
     try:
-        logging.error("Analytic output for the logout call:")
-        logging.error("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        logging.error(request.body)
-        logging.error(content)
-        print str(request.body)
-        print content
-        # user_id = int(json_data["user_id"])
+        user_email = str(json_data["email"])
     except KeyError:
         return HttpResponseServerError("Malformed data!")
-    # delete_all_sessions_by_user(user_id)
+
+    try:    
+        delete_all_sessions_by_user( get_userid_by_email(user_email))
+    except Exception as ex:
+        return HttpResponseServerError(ex)
 
     return HttpResponse()  # 200 for OK :)

@@ -72,4 +72,4 @@ def create_session_user_link(session_key, user_id):
     UserSession.objects.get_or_create(session=session_key, user_id=user_id)
 
 def get_userid_by_email(user_email):
-    User.objects.get(email=user_email)
+    return User.objects.get(email=user_email).id
