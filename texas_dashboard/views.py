@@ -6,7 +6,10 @@ import logging
 import base64
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseNotFound
+from django.http import (
+    HttpResponse, HttpResponseServerError, 
+    HttpResponseNotFound, HttpResponseForbidden
+)
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 
@@ -90,7 +93,15 @@ def logout_user(request):
     """
     Logout user across all sessions.
     """
+    whitelisted_providers = (
+        "tex.extensionengine.com", 
+        "oidc.tex.extensionengine.com",
+    )
+    provider = request.get_host()
 
+    if provider not in whitelisted_providers:
+        return HttpResponseForbidden()
+    
     token = str(request.body).split("=")[1]
     base64_content = token.split(".")[1]
 

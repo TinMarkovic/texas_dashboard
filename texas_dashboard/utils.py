@@ -73,3 +73,7 @@ def create_session_user_link(session_key, user_id):
 
 def get_userid_by_email(user_email):
     return User.objects.get(email=user_email).id
+
+def get_logout_location():
+    # So far, it has no discernable logic - might be necessary later
+    return "https://oidc.tex.extensionengine.com/op/session/end?id_token_hint=&post_logout_redirect_uri=https%3A%2F%2Fwww.texasoncourse.org%2F&state=logout"
