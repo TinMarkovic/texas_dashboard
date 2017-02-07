@@ -1,6 +1,7 @@
 from texas_dashboard.models import (
     DashboardNotification, DashboardUserNotificationStatus, LOModuleUserStatus, LOModule, UserSession
 )
+import json
 from importlib import import_module
 from django.conf import settings
 from django.contrib.sessions.models import Session
