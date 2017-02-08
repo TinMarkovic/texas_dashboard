@@ -100,3 +100,7 @@ def acquire_id_token(user):
     except AttributeError:
         logging.warning("User without extra_data.id_token field.")
         return ""
+    except TypeError as ex:
+        logging.warning("User with invalid extra_data.id_token field.")
+        logging.error(ex)
+        return ""
