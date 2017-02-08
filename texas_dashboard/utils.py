@@ -2,11 +2,10 @@ from texas_dashboard.models import (
     DashboardNotification, DashboardUserNotificationStatus, LOModuleUserStatus, LOModule, UserSession
 )
 import json
+import logging
 from importlib import import_module
 from django.conf import settings
-from django.contrib.sessions.models import Session
 from django.contrib.auth import get_user_model
-from django.db import connection
 from social.apps.django_app.default.models import UserSocialAuth
 
 
@@ -74,20 +73,30 @@ def delete_all_sessions_by_user(user):
 def create_session_user_link(session_key, user_id):
     UserSession.objects.get_or_create(session=session_key, user_id=user_id)
 
+
 def get_userid_by_email(user_email):
     return User.objects.get(email=user_email).id
 
+
 def get_logout_location(user):
     id_token = acquire_id_token(user)
-    # So far, it has no discernable logic - might be necessary later
     return ("https://oidc.tex.extensionengine.com/op/session/end?id_token_hint=" +
             id_token +
             "&post_logout_redirect_uri=https%3A%2F%2Fwww.texasoncourse.org%2F&state=logout")
 
+
 def acquire_id_token(user):
     user_social_auth = UserSocialAuth.objects.get(user_id=user.id)
-    json_extra_data = user_social_auth.extra_data
-    extra_data = json.loads(json_extra_data)
-    
-    return extra_data.id_token
 
+    try:
+        json_extra_data = user_social_auth.extra_data
+    except AttributeError:
+        logging.warning("User without extra_data field.")
+        return ""
+
+    try:
+        extra_data = json.loads(json_extra_data)
+        return extra_data.id_token
+    except AttributeError:
+        logging.warning("User without extra_data.id_token field.")
+        return ""
