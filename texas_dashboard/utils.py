@@ -102,5 +102,8 @@ def acquire_id_token(user):
         return ""
     except TypeError as ex:
         logging.warning("User with invalid extra_data.id_token field.")
+        logging.error(extra_data.id_token)
+        logging.error(dir(extra_data.id_token))
+        logging.error(vars(extra_data.id_token))
         logging.error(ex)
         return ""
