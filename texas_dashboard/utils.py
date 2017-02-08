@@ -82,7 +82,7 @@ def get_logout_location(user):
     id_token = acquire_id_token(user)
     return ("https://oidc.tex.extensionengine.com/op/session/end?id_token_hint=" +
             id_token +
-            "&post_logout_redirect_uri=https%3A%2F%2Fwww.texasoncourse.org%2F&state=logout")
+            "&post_logout_redirect_uri=https%3A%2F%2Fwww.texasoncourse.org&state=logout")
 
 
 def acquire_id_token(user):
