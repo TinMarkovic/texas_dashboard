@@ -89,21 +89,13 @@ def acquire_id_token(user):
     user_social_auth = UserSocialAuth.objects.get(user_id=user.id)
 
     try:
-        json_extra_data = user_social_auth.extra_data
+        extra_data = user_social_auth.extra_data
     except AttributeError:
         logging.warning("User without extra_data field.")
         return ""
 
     try:
-        extra_data = json.loads(json_extra_data)
         return extra_data.id_token
     except AttributeError:
         logging.warning("User without extra_data.id_token field.")
-        return ""
-    except TypeError as ex:
-        logging.warning("User with invalid extra_data.id_token field.")
-        logging.error(json_extra_data)
-        logging.error(dir(json_extra_data))
-        logging.error(vars(json_extra_data))
-        logging.error(ex)
         return ""
