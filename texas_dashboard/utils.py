@@ -1,16 +1,28 @@
 from texas_dashboard.models import (
     DashboardNotification, DashboardUserNotificationStatus, LOModuleUserStatus, LOModule, UserSession
 )
-import json
 import logging
 from importlib import import_module
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict
+
 from social.apps.django_app.default.models import UserSocialAuth
 
+from eventtracking import tracker
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 User = get_user_model()
+
+
+def emit_dashboard_event(event_name, event_data):
+    """
+    Emit team events with the correct course id context.
+    """
+    tracker.get_tracker()
+    tracker.emit(event_name, event_data)
+
 
 def get_notifications_list_for_user(user):
     active_notifications = DashboardNotification.objects.filter(active=True)
@@ -58,9 +70,10 @@ def read_notification_for_user(notification, user):
 
 
 def put_module_in_progress_for_user(module, user):
-    module, created = LOModuleUserStatus.objects.get_or_create(module=module, user=user)
-    module.in_progress = True
-    module.save(update_fields=['in_progress'])
+    module_status, created = LOModuleUserStatus.objects.get_or_create(module=module, user=user)
+    module_status.in_progress = True
+    module_status.save(update_fields=['in_progress'])
+    return created
 
 
 def delete_all_sessions_by_user(user):
@@ -86,16 +99,29 @@ def get_logout_location(user):
 
 
 def acquire_id_token(user):
-    user_social_auth = UserSocialAuth.objects.get(user_id=user.id)
-
-    try:
-        extra_data = user_social_auth.extra_data
-    except AttributeError:
-        logging.warning("User without extra_data field.")
-        return ""
-
+    extra_data = acquire_extra_data(user)
     try:
         return extra_data["id_token"]
     except KeyError:
-        logging.warning("User without extra_data['id_token'] field.")
+        logging.warning("User without extra_data['id_token'] field: " + str(user.id))
         return ""
+
+
+def acquire_extra_data(user):
+    try:
+        user_social_auth = UserSocialAuth.objects.get(user_id=user.id)
+        extra_data = user_social_auth.extra_data
+    except AttributeError:
+        logging.warning("User without extra_data field: " + str(user.id))
+        return ""
+    except ObjectDoesNotExist:
+        logging.warning("User without UserSocialAuth object: " + str(user.id))
+        return ""
+    return extra_data
+
+
+def module_to_dict(module):
+    module_dict = model_to_dict(module)
+    module_dict["module_image_small"] = module_dict["module_image_small"].url
+    module_dict["module_image_large"] = module_dict["module_image_large"].url
+    return module_dict

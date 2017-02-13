@@ -4,7 +4,6 @@ Models to support Texas OnCourse dashboard features
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.sessions.backends.db import SessionStore
 
 from student.models import User
 from model_utils.models import TimeStampedModel

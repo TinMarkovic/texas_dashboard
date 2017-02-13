@@ -2,7 +2,6 @@
 View endpoints for Survey
 """
 import json
-import logging
 import base64
 
 from django.contrib.auth.decorators import login_required
@@ -16,7 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 from texas_dashboard.models import DashboardNotification, LOModule
 from texas_dashboard.utils import (
     hide_notification_for_user, put_module_in_progress_for_user, read_notification_for_user,
-    delete_all_sessions_by_user, get_userid_by_email
+    delete_all_sessions_by_user, get_userid_by_email, emit_dashboard_event, acquire_extra_data,
+    module_to_dict
 )
 
 
@@ -81,7 +81,11 @@ def manage_modules(request, module_id):
         return HttpResponseNotFound()
 
     if request.method == "PUT":
-        put_module_in_progress_for_user(module, request.user)
+        if put_module_in_progress_for_user(module, request.user):
+            emit_dashboard_event("txoc.dashboard.module_put_in_progress", {
+                "module": module_to_dict(module),
+                "user_oidc_extra_data": acquire_extra_data(request.user)
+            })
     else:
         return HttpResponseServerError("Not Implemented")
 
@@ -122,5 +126,32 @@ def logout_user(request):
         delete_all_sessions_by_user( get_userid_by_email(user_email))
     except Exception as ex:
         return HttpResponseServerError(ex)
+
+    return HttpResponse()  # 200 for OK :)
+
+
+@login_required
+def record_event(request):
+    """
+    Event emitter for the dashboard.
+    """
+    event_dict = dict()
+
+    event_dict["user_oidc_extra_data"] = acquire_extra_data(request.user)
+
+    if request.method == 'GET':
+        return HttpResponseNotFound()
+
+    json_data = json.loads(request.body)
+    try:
+        event_data = json_data["event_data"]
+        event_name = json_data["event_name"]
+    except KeyError:
+        return HttpResponseServerError("Malformed data!")
+
+    if "module_id" in event_data:
+        event_dict["module"] = module_to_dict(LOModule.get(event_data["module_id"]))
+
+    emit_dashboard_event(event_name, event_dict)
 
     return HttpResponse()  # 200 for OK :)
